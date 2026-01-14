@@ -8,7 +8,10 @@ The system exposes CRUD operations for telemetry data and provides aggregated in
 ---
 
 ## Project Background
-This project is a **personal recreation and extension** of a university assignment originally completed as part of the **CMPG 323** module at **North-West University**.
+This project is a reimplementation of a university assignment originally completed during my undergraduate studies.
+It has been rebuilt independently for learning, skill improvement, and portfolio purposes.
+
+This repository is not associated with any active academic submission.
 
 The original assignment was required to be submitted using a **private repository** and could not be shared publicly. This repository represents a **rebuilt version** of the project, created independently for **portfolio and learning purposes**.
 
