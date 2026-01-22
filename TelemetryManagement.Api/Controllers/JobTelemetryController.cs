@@ -83,5 +83,81 @@ namespace TelemetryManagement.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpPost("GetSavings/Project")]
+        public async Task<ActionResult<object>> GetProjectSavings(
+            Guid projectId,
+            DateTime startDate,
+            DateTime endDate)
+        {
+            const decimal COST_PER_HOUR = 250m;
+
+            var telemetry = await (
+                from t in _context.JobTelemetries
+                join p in _context.Processes
+                    on t.ProccesId equals p.ProcessId.ToString()
+                where p.ProjectId == projectId
+                    && t.EntryDate >= startDate
+                    && t.EntryDate <= endDate
+                select t
+                ).ToListAsync();
+
+            if (!telemetry.Any() )
+            {
+                return NotFound();
+            }
+            var totalHumanTimeMinutes = telemetry.Sum( t => t.HumanTime ?? 0);
+            var totalHumanTimehours = totalHumanTimeMinutes / 60m;
+            var totalCostSaved = totalHumanTimehours * COST_PER_HOUR;
+
+            return new
+            {
+                ProjectId = projectId,
+                TotalTimeSavedMinutes = totalHumanTimeMinutes,
+                TotalTimeSavedHours = totalHumanTimehours,
+                TotalCostSaved = totalCostSaved
+            };
+        }
+
+        [HttpGet("GetSavings/Client")]
+        public async Task<ActionResult<object>> GetClientSavings(
+            Guid clientId,
+            DateTime startDate,
+            DateTime endDate)
+        {
+            const decimal COST_PER_HOUR = 250m;
+
+            var telemetry = await (
+                from t in _context.JobTelemetries
+                join p in _context.Processes
+                    on t.ProccesId equals p.ProcessId.ToString()
+                join pr in _context.Projects
+                    on p.ProjectId equals pr.ProjectId
+                where pr.ClientId == clientId
+                    && t.EntryDate >= startDate
+                    && t.EntryDate <= endDate
+                    && (t.ExcludeFromTimeSaving == false || t.ExcludeFromTimeSaving == null)
+
+                select t
+                ).ToListAsync();
+
+            if (!telemetry.Any())
+            {
+                return NotFound();
+            }
+            var totalHumanTimeMinutes = telemetry.Sum(t => t.HumanTime ?? 0);
+            var totalHumanTimehours = totalHumanTimeMinutes / 60m;
+            var totalCostSaved = totalHumanTimehours * COST_PER_HOUR;
+
+            return new
+            {
+                CLientId = clientId,
+                TotalTimeSavedMinutes = totalHumanTimeMinutes,
+                TotalTimeSavedHours = totalHumanTimehours,
+                TotalCostSaved = totalCostSaved
+            };
+               
+        }
+
     }
 }
